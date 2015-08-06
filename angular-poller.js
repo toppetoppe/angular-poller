@@ -33,6 +33,40 @@
 (function (window, angular, undefined) {
 
     'use strict';
+    var runDeps = ['$rootScope', 'poller', 'pollerConfig'];
+    var run = function($rootScope, poller, pollerConfig){
+
+
+        /**
+         * Automatically stop or reset all pollers before route change ($routeProvider) or state change ($stateProvider).
+         */
+        if (pollerConfig.stopOnRouteChange) {
+            $rootScope.$on('$routeChangeStart', function () {
+                poller.stopAll();
+            });
+        }
+
+        if (pollerConfig.stopOnStateChange) {
+            $rootScope.$on('$stateChangeStart', function () {
+                poller.stopAll();
+            });
+        }
+
+        if (pollerConfig.resetOnRouteChange) {
+            $rootScope.$on('$routeChangeStart', function () {
+                poller.reset();
+            });
+        }
+
+        if (pollerConfig.resetOnStateChange) {
+            $rootScope.$on('$stateChangeStart', function () {
+                poller.reset();
+            });
+        }
+
+    };
+
+    run.$inject = runDeps;
 
     angular.module('emguo.poller', [])
 
@@ -41,39 +75,10 @@
             stopOnStateChange: false,
             resetOnRouteChange: false,
             resetOnStateChange: false,
-            neverOverwrite: false,
-            smart: false
+            neverOverwrite: false
         })
 
-        .run(['$rootScope', 'poller', 'pollerConfig', function ($rootScope, poller, pollerConfig) {
-
-            /**
-             * Automatically stop or reset all pollers before route change ($routeProvider) or state change ($stateProvider).
-             */
-            if (pollerConfig.stopOnRouteChange) {
-                $rootScope.$on('$routeChangeStart', function () {
-                    poller.stopAll();
-                });
-            }
-
-            if (pollerConfig.stopOnStateChange) {
-                $rootScope.$on('$stateChangeStart', function () {
-                    poller.stopAll();
-                });
-            }
-
-            if (pollerConfig.resetOnRouteChange) {
-                $rootScope.$on('$routeChangeStart', function () {
-                    poller.reset();
-                });
-            }
-
-            if (pollerConfig.resetOnStateChange) {
-                $rootScope.$on('$stateChangeStart', function () {
-                    poller.reset();
-                });
-            }
-        }])
+        .run(run)
 
         .factory('poller', ['$interval', '$q', '$http', 'pollerConfig', function ($interval, $q, $http, pollerConfig) {
 
@@ -83,7 +88,7 @@
                     action: 'get',
                     argumentsArray: [],
                     delay: 5000,
-                    smart: pollerConfig.smart,
+                    smart: false,
                     catchError: false
                 },
 
@@ -152,7 +157,7 @@
                 },
 
                 /**
-                 * Start poller.
+                 * Start poller service.
                  */
                 start: function () {
 
@@ -227,7 +232,7 @@
                 },
 
                 /**
-                 * Stop poller if it is running.
+                 * Stop poller service if it is running.
                  */
                 stop: function () {
 
@@ -239,16 +244,7 @@
                 },
 
                 /**
-                 * Remove poller.
-                 */
-                remove: function () {
-                    var index = pollers.indexOf(this);
-                    this.stop();
-                    pollers.splice(index, 1);
-                },
-
-                /**
-                 * Restart poller.
+                 * Restart poller service.
                  */
                 restart: function () {
                     this.stop();
