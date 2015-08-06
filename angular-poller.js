@@ -31,7 +31,6 @@
  */
 
 (function (window, angular, undefined) {
-
     'use strict';
     var runDeps = ['$rootScope', 'poller', 'pollerConfig'];
     var run = function($rootScope, poller, pollerConfig){
