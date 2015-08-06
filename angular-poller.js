@@ -32,10 +32,16 @@
 
 (function (window, angular, undefined) {
     'use strict';
-    var runDeps = ['$rootScope', 'poller', 'pollerConfig'];
-    var run = function($rootScope, poller, pollerConfig){
+    angular.module('emguo.poller', [])
 
-
+        .constant('pollerConfig', {
+            stopOnRouteChange: false,
+            stopOnStateChange: false,
+            resetOnRouteChange: false,
+            resetOnStateChange: false,
+            neverOverwrite: false
+        })
+        .run(['$rootScope', 'poller', 'pollerConfig', function($rootScope, poller, pollerConfig){
         /**
          * Automatically stop or reset all pollers before route change ($routeProvider) or state change ($stateProvider).
          */
@@ -63,21 +69,7 @@
             });
         }
 
-    };
-
-    run.$inject = runDeps;
-
-    angular.module('emguo.poller', [])
-
-        .constant('pollerConfig', {
-            stopOnRouteChange: false,
-            stopOnStateChange: false,
-            resetOnRouteChange: false,
-            resetOnStateChange: false,
-            neverOverwrite: false
-        })
-
-        .run(run)
+        }])
 
         .factory('poller', ['$interval', '$q', '$http', 'pollerConfig', function ($interval, $q, $http, pollerConfig) {
 
